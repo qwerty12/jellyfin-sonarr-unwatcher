@@ -13,10 +13,9 @@ import (
 	"jellyfin-sonarr-unwatcher/extmodels/jellygen"
 )
 
-func DecodeJellyfinPayload(data io.Reader) (JellyfinPayload, error) {
-	var r JellyfinPayload
-	err := json.NewDecoder(data).Decode(&r)
-	return r, err
+func DecodeJellyfinPayload(data io.Reader) (r JellyfinPayload, err error) {
+	err = json.NewDecoder(data).Decode(&r)
+	return
 }
 
 /*func UnmarshalJellyfinPayload(data []byte) (JellyfinPayload, error) {
@@ -32,12 +31,12 @@ func (r *JellyfinPayload) Marshal() ([]byte, error) {
 // DefaultFormatPayload: https://github.com/shemanaev/jellyfin-plugin-webhooks/blob/master/Jellyfin.Webhooks/Formats/DefaultFormat.cs#L50
 type JellyfinPayload struct {
 	Event          HookEvent             `json:"Event"`
-	Item           *jellygen.BaseItemDto `json:"Item,omitempty"`
-	User           *jellygen.UserDto     `json:"User,omitempty"`
-	Session        *SessionInfoDto       `json:"Session,omitempty"`
+	Item           *jellygen.BaseItemDto `json:"Item,omitempty,omitzero"`
+	User           *jellygen.UserDto     `json:"User,omitempty,omitzero"`
+	Session        *SessionInfoDto       `json:"Session,omitempty,omitzero"`
 	Server         ServerInfoDto         `json:"Server"`
-	AdditionalData *any                  `json:"AdditionalData,omitempty"`
-	Series         *jellygen.BaseItemDto `json:"Series,omitempty"`
+	AdditionalData *any                  `json:"AdditionalData,omitempty,omitzero"`
+	Series         *jellygen.BaseItemDto `json:"Series,omitempty,omitzero"`
 }
 
 type HookEvent string
@@ -64,17 +63,17 @@ const (
 )
 
 type ServerInfoDto struct {
-	ID      *string `json:"Id,omitempty"`
+	ID      *string `json:"Id,omitempty,omitzero"`
 	Name    string  `json:"Name"`
 	Version string  `json:"Version"`
 }
 
 type SessionInfoDto struct {
-	ID                 *string                   `json:"Id,omitempty"`
-	Client             *string                   `json:"Client,omitempty"`
-	DeviceID           *string                   `json:"DeviceId,omitempty"`
-	DeviceName         *string                   `json:"DeviceName,omitempty"`
-	RemoteEndPoint     *string                   `json:"RemoteEndPoint,omitempty"`
-	ApplicationVersion *string                   `json:"ApplicationVersion,omitempty"`
-	PlayState          *jellygen.PlayerStateInfo `json:"PlayState,omitempty"`
+	ID                 *string                   `json:"Id,omitempty,omitzero"`
+	Client             *string                   `json:"Client,omitempty,omitzero"`
+	DeviceID           *string                   `json:"DeviceId,omitempty,omitzero"`
+	DeviceName         *string                   `json:"DeviceName,omitempty,omitzero"`
+	RemoteEndPoint     *string                   `json:"RemoteEndPoint,omitempty,omitzero"`
+	ApplicationVersion *string                   `json:"ApplicationVersion,omitempty,omitzero"`
+	PlayState          *jellygen.PlayerStateInfo `json:"PlayState,omitempty,omitzero"`
 }

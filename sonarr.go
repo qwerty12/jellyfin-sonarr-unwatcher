@@ -52,7 +52,7 @@ func unmonitorEpisode(episodeProviderIds *map[string]string, series *jellygen.Ba
 	}
 
 	var seriesTitle string
-	var episode sonarrt.EpisodeResource
+	var episode *sonarrt.EpisodeResource
 	if episodeSonarrId := (*episodeProviderIds)["sonarr"]; episodeSonarrId != "" {
 		episode = findEpisodeBySonarrId(episodeSonarrId, episodeTvdbId)
 	}
@@ -65,22 +65,24 @@ func unmonitorEpisode(episodeProviderIds *map[string]string, series *jellygen.Ba
 			seriesTitle = *series.OriginalTitle
 		}
 
-		if episode.TvdbId == nil && series.ProviderIds != nil {
+		if episode == nil && series.ProviderIds != nil {
 			if seriesTvdbId := (*series.ProviderIds)["Tvdb"]; seriesTvdbId != "" {
 				episode = findEpisodeBySeriesAndEpisodeTvdbIds(seriesTvdbId, episodeTvdbId)
 			}
 		}
 
-		if episode.TvdbId == nil {
+		if episode == nil {
 			if seriesTitle == "" {
 				log.Println("SeriesTitle is nil")
 				return
 			}
 			episode = findEpisodeByTitleAndTvdbEpisodeId(seriesTitle, episodeTvdbId)
 		}
+	} else if episode != nil && episode.Series != nil && episode.Series.Title != nil {
+		seriesTitle = *episode.Series.Title
 	}
 
-	if episode.TvdbId == nil || episode.SeasonNumber == nil || episode.EpisodeNumber == nil {
+	if episode == nil || episode.SeasonNumber == nil || episode.EpisodeNumber == nil {
 		log.Printf("Could not find '%s' in Sonarr library", seriesTitle)
 		return
 	}
@@ -115,47 +117,47 @@ func getRootFolders() []string {
 	return paths
 }
 
-func findEpisodeBySonarrId(episodeSonarrId string, episodeTvdbId int32) (matchingEpisode sonarrt.EpisodeResource) {
+func findEpisodeBySonarrId(episodeSonarrId string, episodeTvdbId int32) *sonarrt.EpisodeResource {
 	var ep sonarrt.EpisodeResource
 	if err := sonarrClient.get("episode/"+episodeSonarrId, nil, &ep); err == nil {
 		if ep.TvdbId != nil && *ep.TvdbId == episodeTvdbId {
-			matchingEpisode = ep
+			return &ep
 		}
 	}
-	return
+
+	return nil
 }
 
-func findEpisodeBySeriesAndEpisodeTvdbIds(seriesTvdbId string, episodeTvdbId int32) (matchingEpisode sonarrt.EpisodeResource) {
+func findEpisodeBySeriesAndEpisodeTvdbIds(seriesTvdbId string, episodeTvdbId int32) *sonarrt.EpisodeResource {
 	var seriesList []sonarrt.SeriesResource
-	if err := sonarrClient.get("series", map[string]string{
-		"tvdbId": seriesTvdbId,
+	if err := sonarrClient.get("series", url.Values{
+		"tvdbId": []string{seriesTvdbId},
 	}, &seriesList); err != nil {
-		return
+		return nil
 	}
 
 	for i := range seriesList {
 		series := &seriesList[i]
 		if series.Id != nil {
 			var episodeList []sonarrt.EpisodeResource
-			if err := sonarrClient.get("episode", map[string]string{
-				"seriesId": strconv.Itoa(int(*series.Id)),
+			if err := sonarrClient.get("episode", url.Values{
+				"seriesId": []string{strconv.Itoa(int(*series.Id))},
 			}, &episodeList); err != nil {
 				continue
 			}
 
 			for _, ep := range episodeList {
 				if ep.TvdbId != nil && *ep.TvdbId == episodeTvdbId {
-					matchingEpisode = ep
-					return
+					return &ep
 				}
 			}
 		}
 	}
 
-	return
+	return nil
 }
 
-func findEpisodeByTitleAndTvdbEpisodeId(seriesTitle string, episodeTvdbId int32) (matchingEpisode sonarrt.EpisodeResource) {
+func findEpisodeByTitleAndTvdbEpisodeId(seriesTitle string, episodeTvdbId int32) *sonarrt.EpisodeResource {
 	// https://github.com/Shraymonks/unmonitorr/blob/main/src/sonarr.ts
 	// Sonarr has no api for getting an episode by episode tvdbId
 	// Go through the following steps to get the matching episode:
@@ -166,7 +168,7 @@ func findEpisodeByTitleAndTvdbEpisodeId(seriesTitle string, episodeTvdbId int32)
 	var seriesList []sonarrt.SeriesResource
 	if err := sonarrClient.get("series", nil, &seriesList); err != nil {
 		log.Printf("Failed to get series list from Sonarr for '%s': %v", seriesTitle, err)
-		return
+		return nil
 	}
 
 	cleanedTitle := cleanTitle(seriesTitle)
@@ -176,8 +178,8 @@ func findEpisodeByTitleAndTvdbEpisodeId(seriesTitle string, episodeTvdbId int32)
 		series := &seriesList[i]
 		if series.Id != nil && series.Title != nil && cleanTitle(*series.Title) == cleanedTitle {
 			var episodeList []sonarrt.EpisodeResource
-			if err := sonarrClient.get("episode", map[string]string{
-				"seriesId": strconv.Itoa(int(*series.Id)),
+			if err := sonarrClient.get("episode", url.Values{
+				"seriesId": []string{strconv.Itoa(int(*series.Id))},
 			}, &episodeList); err != nil {
 				//log.Printf("Failed to get episode list from Sonarr for '%s': %v", seriesTitle, err)
 				continue
@@ -185,14 +187,13 @@ func findEpisodeByTitleAndTvdbEpisodeId(seriesTitle string, episodeTvdbId int32)
 
 			for _, ep := range episodeList {
 				if ep.TvdbId != nil && *ep.TvdbId == episodeTvdbId {
-					matchingEpisode = ep
-					return
+					return &ep
 				}
 			}
 		}
 	}
 
-	return
+	return nil
 }
 
 var yearSuffixRegex = regexp.MustCompile(` \(\d{4}\)$`)
@@ -219,18 +220,18 @@ func newSonarrAPIClient(baseUrl *url.URL, apiKey string) *sonarrAPIClient {
 			Transport: &http.Transport{
 				Proxy:                 nil, // $HTTP_PROXY etc. ignored
 				MaxIdleConns:          50,
-				IdleConnTimeout:       http.DefaultTransport.(*http.Transport).IdleConnTimeout,
+				IdleConnTimeout:       time.Minute,
 				TLSHandshakeTimeout:   http.DefaultTransport.(*http.Transport).TLSHandshakeTimeout,
 				ExpectContinueTimeout: http.DefaultTransport.(*http.Transport).ExpectContinueTimeout,
-				ResponseHeaderTimeout: 30 * time.Second,
-				DialContext:           (&net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
+				ResponseHeaderTimeout: 10 * time.Second,
+				DialContext:           (&net.Dialer{Timeout: 30 * time.Second, KeepAlive: time.Minute}).DialContext,
 				ForceAttemptHTTP2:     false,
 			},
 		},
 	}
 }
 
-func (c *sonarrAPIClient) do(method string, endpoint string, queryParams map[string]string, reqBody any, respBody any) error {
+func (c *sonarrAPIClient) do(method string, endpoint string, queryParams url.Values, reqBody any, respBody any) error {
 	finalUrl := c.url + endpoint
 	if queryParams != nil {
 		u, err := url.Parse(finalUrl)
@@ -238,17 +239,13 @@ func (c *sonarrAPIClient) do(method string, endpoint string, queryParams map[str
 			return err
 		}
 
-		q := u.Query()
-		for k, v := range queryParams {
-			q.Set(k, v)
-		}
-		u.RawQuery = q.Encode()
+		u.RawQuery = queryParams.Encode()
 
 		finalUrl = u.String()
 	}
 
+	var pReqBody io.Reader = nil
 	var jsonBuf bytes.Buffer
-	var pReqBody io.Reader
 	if reqBody != nil {
 		jsonEnc := json.NewEncoder(&jsonBuf)
 		jsonEnc.SetEscapeHTML(false)
@@ -262,13 +259,13 @@ func (c *sonarrAPIClient) do(method string, endpoint string, queryParams map[str
 	if err != nil {
 		return fmt.Errorf("failed to create %s request for %s: %w", method, finalUrl, err)
 	}
-	req.Header.Set("X-Api-Key", c.apiKey)
 	if reqBody != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
 	if respBody != nil {
 		req.Header.Set("Accept", "application/json")
 	}
+	req.Header.Set("X-Api-Key", c.apiKey)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -289,10 +286,10 @@ func (c *sonarrAPIClient) do(method string, endpoint string, queryParams map[str
 	return nil
 }
 
-func (c *sonarrAPIClient) get(endpoint string, queryParams map[string]string, respBody any) error {
+func (c *sonarrAPIClient) get(endpoint string, queryParams url.Values, respBody any) error {
 	return c.do(http.MethodGet, endpoint, queryParams, nil, respBody)
 }
 
-func (c *sonarrAPIClient) put(endpoint string, queryParams map[string]string, reqBody any, respBody any) error {
+func (c *sonarrAPIClient) put(endpoint string, queryParams url.Values, reqBody any, respBody any) error {
 	return c.do(http.MethodPut, endpoint, queryParams, reqBody, respBody)
 }

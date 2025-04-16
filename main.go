@@ -16,6 +16,7 @@ var sonarrRootFolders []string
 var sonarrRootFoldersSet = false // not atomic.Bool
 
 func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
+	// TODO: if binding to 0.0.0.0, https://www.alexedwards.net/blog/how-to-properly-parse-a-json-request-body
 	j, err := DecodeJellyfinPayload(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -29,11 +30,11 @@ func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if j.Item.UserData != nil && j.Item.UserData.IsFavorite != nil && *j.Item.UserData.IsFavorite { // oh Go
+	if j.Item.UserData != nil && j.Item.UserData.IsFavorite != nil && *j.Item.UserData.IsFavorite {
 		return
 	}
 
-	if j.Series != nil && j.Series.UserData != nil && j.Series.UserData.IsFavorite != nil && *j.Series.UserData.IsFavorite {
+	if j.Series != nil && j.Series.UserData != nil && j.Series.UserData.IsFavorite != nil && *j.Series.UserData.IsFavorite { // oh Go...
 		return
 	}
 
@@ -67,18 +68,11 @@ func main() {
 				return
 			}
 
-			exp := i
-			if i > math.MaxUint32 {
-				exp = math.MaxUint32
-			}
-			var secs uint64
-			if exp >= 64 {
-				secs = math.MaxUint64
+			if i >= 64 || (1<<i) > uint64(math.MaxInt64)/uint64(time.Second) {
+				time.Sleep(time.Duration(math.MaxInt64))
 			} else {
-				secs = 1 << exp
+				time.Sleep(time.Duration(1<<i) * time.Second)
 			}
-
-			time.Sleep(time.Duration(secs) * time.Second)
 		}
 	}()
 
@@ -95,6 +89,10 @@ func main() {
 		Addr:                         addr,
 		Handler:                      mux,
 		DisableGeneralOptionsHandler: true,
+		IdleTimeout:                  time.Minute,
+		ReadTimeout:                  30 * time.Second,
+		ReadHeaderTimeout:            10 * time.Second,
+		WriteTimeout:                 10 * time.Second,
 	}
 	log.Fatal(s.ListenAndServe())
 }
