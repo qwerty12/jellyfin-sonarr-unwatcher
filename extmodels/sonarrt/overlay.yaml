@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/OAI/Overlay-Specification/refs/heads/main/schemas/v1.0/schema.yaml
+overlay: 1.0.0
+info:
+  title: Overlay
+  version: 0.0.0
+actions:
+  - target: $["paths"]["/"]
+    description: 'error generating code: error creating operation definitions: path / has 0 positional parameters, but spec has 1 declared'
+    remove: true

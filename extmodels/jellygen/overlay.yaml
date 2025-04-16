@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/OAI/Overlay-Specification/refs/heads/main/schemas/v1.0/schema.yaml
+overlay: 1.0.0
+info:
+  title: Overlay
+  version: 0.0.0
+actions:
+  # https://github.com/speakeasy-api/jsonpath is useful here
+  - target: $..*[?(@.format == 'uuid' && @.type == 'string')].format
+    description: Avoid github.com/oapi-codegen/runtime/types dependency
+    remove: true
+  - target: $["components"]["schemas"]["MediaStream"]["properties"]["VideoRangeType"]["allOf"]
+    description: '"Fix" errors in generated code:'
+    remove: true
+  - target: $["components"]["schemas"]["MediaStream"]["properties"]["VideoRangeType"]
+    description: Still have a `VideoRangeType` here while removing the `allOf` above
+    update:
+      type: "string"
+  - target: $["components"]["schemas"]["TranscodingInfo"]["properties"]["TranscodeReasons"]["enum"]
+    description: Prevent duplicate `TranscodeReasons` enum
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ProviderIds"]["additionalProperties"]["nullable"]
+    description: Keep the values non-null for easier and more logical handling
+    update: false
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ProviderIds"]
+    update:
+      #x-omitempty: true
+      x-oapi-codegen-extra-tags:
+        json: ProviderIds,omitempty,omitzero

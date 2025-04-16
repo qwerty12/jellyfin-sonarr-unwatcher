@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oapi-codegen/oapi-codegen/HEAD/configuration-schema.json
+package: jellygen
+generate:
+  models: true
+output-options:
+  include-tags:
+    - User
+  exclude-operation-ids:
+    - LogFile
+    - UploadLyrics
+  disable-type-aliases-for-type: []
+  overlay:
+    path: overlay.yaml
+output: types.gen.go
