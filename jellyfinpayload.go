@@ -30,15 +30,16 @@ func (r *JellyfinPayload) Marshal() ([]byte, error) {
 
 // DefaultFormatPayload: https://github.com/shemanaev/jellyfin-plugin-webhooks/blob/master/Jellyfin.Webhooks/Formats/DefaultFormat.cs#L50
 type JellyfinPayload struct {
-	Event          HookEvent             `json:"Event"`
-	Item           *jellygen.BaseItemDto `json:"Item,omitempty,omitzero"`
-	User           *jellygen.UserDto     `json:"User,omitempty,omitzero"`
-	Session        *SessionInfoDto       `json:"Session,omitempty,omitzero"`
-	Server         ServerInfoDto         `json:"Server"`
-	AdditionalData *any                  `json:"AdditionalData,omitempty,omitzero"`
-	Series         *jellygen.BaseItemDto `json:"Series,omitempty,omitzero"`
+	//Event          HookEvent             `json:"Event"`
+	Item *jellygen.BaseItemDto `json:"Item,omitempty,omitzero"`
+	//User *jellygen.UserDto     `json:"User,omitempty,omitzero"`
+	//Session        *SessionInfoDto       `json:"Session,omitempty,omitzero"`
+	//Server         ServerInfoDto         `json:"Server"`
+	//AdditionalData *any                  `json:"AdditionalData,omitempty,omitzero"`
+	Series *jellygen.BaseItemDto `json:"Series,omitempty,omitzero"`
 }
 
+/*
 type HookEvent string
 
 const (
@@ -77,3 +78,4 @@ type SessionInfoDto struct {
 	ApplicationVersion *string                   `json:"ApplicationVersion,omitempty,omitzero"`
 	PlayState          *jellygen.PlayerStateInfo `json:"PlayState,omitempty,omitzero"`
 }
+*/

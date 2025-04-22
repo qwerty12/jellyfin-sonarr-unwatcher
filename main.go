@@ -16,7 +16,7 @@ var sonarrRootFolders []string
 var sonarrRootFoldersSet = false // not atomic.Bool
 
 func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
-	// TODO: if binding to 0.0.0.0, https://www.alexedwards.net/blog/how-to-properly-parse-a-json-request-body
+	// TODO: https://www.alexedwards.net/blog/how-to-properly-parse-a-json-request-body if binding to 0.0.0.0
 	j, err := DecodeJellyfinPayload(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -76,11 +76,11 @@ func main() {
 		}
 	}()
 
-	var jellyfinPort = os.Getenv("JELLYFIN_PORT")
+	jellyfinPort := os.Getenv("JELLYFIN_PORT")
 	if jellyfinPort == "" {
 		jellyfinPort = "9898"
 	}
-	var addr = "127.0.0.1:" + jellyfinPort
+	addr := "127.0.0.1:" + jellyfinPort
 	log.Print("Starting unmonitoring for Jellyfin on http://", addr, PATH_JELLYFIN)
 
 	mux := http.NewServeMux()
