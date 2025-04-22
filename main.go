@@ -3,7 +3,6 @@ package main
 import (
 	"jellyfin-sonarr-unwatcher/extmodels/jellygen"
 	"log"
-	"math"
 	"net/http"
 	"os"
 	"strings"
@@ -63,15 +62,18 @@ func main() {
 		for i := 0; i <= retries; i++ {
 			rootFolders := getRootFolders()
 			if rootFolders != nil {
-				sonarrRootFolders = rootFolders
-				sonarrRootFoldersSet = true
+				if len(rootFolders) > 0 {
+					sonarrRootFolders = rootFolders
+					sonarrRootFoldersSet = true
+				}
 				return
 			}
 
-			if i >= 64 || (1<<i) > uint64(math.MaxInt64)/uint64(time.Second) {
-				time.Sleep(time.Duration(math.MaxInt64))
-			} else {
+			if i <= 33 {
 				time.Sleep(time.Duration(1<<i) * time.Second)
+			} else {
+				return
+				//time.Sleep(time.Duration(math.MaxInt64))
 			}
 		}
 	}()

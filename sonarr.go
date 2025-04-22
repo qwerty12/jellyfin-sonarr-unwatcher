@@ -104,17 +104,19 @@ func unmonitorEpisode(episodeProviderIds *map[string]string, series *jellygen.Ba
 }
 
 func getRootFolders() []string {
-	var paths []string
 	var rootFolders []sonarrt.RootFolderResource
 	if err := sonarrClient.get("rootfolder", nil, &rootFolders); err == nil {
+		paths := make([]string, 0, len(rootFolders))
 		for _, folder := range rootFolders {
 			if folder.Path != nil && *folder.Path != "" {
 				paths = append(paths, *folder.Path)
 			}
 		}
+
+		return paths
 	}
 
-	return paths
+	return nil
 }
 
 func findEpisodeBySonarrId(episodeSonarrId string, episodeTvdbId int32) *sonarrt.EpisodeResource {
