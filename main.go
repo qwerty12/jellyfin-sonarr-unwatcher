@@ -1,3 +1,5 @@
+//go:generate go tool go-winres make
+
 package main
 
 import (
@@ -11,7 +13,7 @@ import (
 
 const PATH_JELLYFIN = "/jellyfin"
 
-var sonarrRootFolders []string
+var sonarrRootFolders []string   // cached for the process's lifetime
 var sonarrRootFoldersSet = false // not atomic.Bool
 
 func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
