@@ -3,6 +3,7 @@
 package main
 
 import (
+	"encoding/json"
 	"jellyfin-sonarr-unwatcher/internal/jellygen"
 	"log"
 	"math"
@@ -14,48 +15,75 @@ import (
 
 const PATH_JELLYFIN = "/jellyfin"
 
+var remainingEpisodes int32
+
 var sonarrRootFolders []string   // cached for the process's lifetime
 var sonarrRootFoldersSet = false // not atomic.Bool
 
-func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
+func isInSonarrFolder(Path *string) bool {
+	if sonarrRootFoldersSet && Path != nil {
+		itemPath := *Path
+		for _, rootFolder := range sonarrRootFolders {
+			if strings.HasPrefix(itemPath, rootFolder) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	return true
+}
+
+func basicInputValidation(j *JellyfinPayload) bool {
 	// TODO: https://www.alexedwards.net/blog/how-to-properly-parse-a-json-request-body if binding to 0.0.0.0
-	j, err := DecodeJellyfinPayload(r.Body)
+	if j.Item == nil || j.Item.Type == nil {
+		return false
+	}
+
+	if *j.Item.Type != jellygen.BaseItemKindEpisode {
+		return false
+	}
+
+	if !isInSonarrFolder(j.Item.Path) {
+		return false
+	}
+
+	return true
+}
+
+func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
+	var j JellyfinPayload
+	err := json.NewDecoder(r.Body).Decode(&j)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if j.Item == nil || j.Item.ProviderIds == nil || j.Item.Type == nil {
+
+	if !basicInputValidation(&j) {
 		return
 	}
 
-	if *j.Item.Type != jellygen.BaseItemKindEpisode {
+	unmonitorEpisode(j.Item, j.Series, nil)
+}
+
+func prefetcharrHandler(_ http.ResponseWriter, r *http.Request) {
+	var j JellyfinPayload
+	err := json.NewDecoder(r.Body).Decode(&j)
+	if err != nil {
+		log.Println(err)
 		return
 	}
 
-	if j.Item.UserData != nil && j.Item.UserData.IsFavorite != nil && *j.Item.UserData.IsFavorite {
+	if j.Series == nil {
 		return
 	}
 
-	if j.Series != nil && j.Series.UserData != nil && j.Series.UserData.IsFavorite != nil && *j.Series.UserData.IsFavorite { // oh Go...
+	if !basicInputValidation(&j) {
 		return
 	}
 
-	if sonarrRootFoldersSet && j.Item.Path != nil {
-		itemPath := *j.Item.Path
-		inSonarrFolder := false
-		for _, rootFolder := range sonarrRootFolders {
-			if strings.HasPrefix(itemPath, rootFolder) {
-				inSonarrFolder = true
-				break
-			}
-		}
-
-		if !inSonarrFolder {
-			return
-		}
-	}
-
-	unmonitorEpisode(j.Item.ProviderIds, j.Series)
+	searchNext(j.Item, j.Series)
 }
 
 func main() {
@@ -89,6 +117,13 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(http.MethodPost+" "+PATH_JELLYFIN, jellyfinHandler)
+
+	remainingEpisodes = atoi32(os.Getenv("REMAINING_EPISODES"))
+	if remainingEpisodes > 0 {
+		log.Println("Enabling prefetcharr endpoint, remaining episodes threshold:", remainingEpisodes)
+		mux.HandleFunc(http.MethodPost+" /prefetcharr", prefetcharrHandler)
+	}
+
 	s := &http.Server{
 		Addr:                         addr,
 		Handler:                      mux,

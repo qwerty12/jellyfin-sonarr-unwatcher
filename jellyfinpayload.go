@@ -1,32 +1,11 @@
 // qwerty12: This file was initially generated from JSON Schema using quicktype, and then referenced against the
 // source of shemanaev's Webhook plugin.
-// To parse and unparse this JSON data, add this code to your project and do:
-//
-//    jellyfinPayload, err := UnmarshalJellyfinPayload(bytes)
-//    bytes, err = jellyfinPayload.Marshal()
 
 package main
 
 import (
-	"encoding/json"
-	"io"
 	"jellyfin-sonarr-unwatcher/internal/jellygen"
 )
-
-func DecodeJellyfinPayload(data io.Reader) (r JellyfinPayload, err error) {
-	err = json.NewDecoder(data).Decode(&r)
-	return
-}
-
-/*func UnmarshalJellyfinPayload(data []byte) (JellyfinPayload, error) {
-	var r JellyfinPayload
-	err := json.Unmarshal(data, &r)
-	return r, err
-}*/
-
-func (r *JellyfinPayload) Marshal() ([]byte, error) {
-	return json.Marshal(r)
-}
 
 // DefaultFormatPayload: https://github.com/shemanaev/jellyfin-plugin-webhooks/blob/master/Jellyfin.Webhooks/Formats/DefaultFormat.cs#L50
 type JellyfinPayload struct {

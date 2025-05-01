@@ -98,3 +98,7 @@ func (c *sonarrAPIClient) get(endpoint string, queryParams url.Values, respBody 
 func (c *sonarrAPIClient) put(endpoint string, queryParams url.Values, reqBody any, respBody any) error {
 	return c.do(http.MethodPut, endpoint, queryParams, reqBody, respBody)
 }
+
+func (c *sonarrAPIClient) post(endpoint string, queryParams url.Values, reqBody any, respBody any) error {
+	return c.do(http.MethodPost, endpoint, queryParams, reqBody, respBody)
+}
