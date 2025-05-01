@@ -10,7 +10,7 @@ package main
 import (
 	"encoding/json"
 	"io"
-	"jellyfin-sonarr-unwatcher/extmodels/jellygen"
+	"jellyfin-sonarr-unwatcher/internal/jellygen"
 )
 
 func DecodeJellyfinPayload(data io.Reader) (r JellyfinPayload, err error) {

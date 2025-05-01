@@ -3,8 +3,9 @@
 package main
 
 import (
-	"jellyfin-sonarr-unwatcher/extmodels/jellygen"
+	"jellyfin-sonarr-unwatcher/internal/jellygen"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"strings"
@@ -74,8 +75,7 @@ func main() {
 			if i <= 33 {
 				time.Sleep(time.Duration(1<<i) * time.Second)
 			} else {
-				return
-				//time.Sleep(time.Duration(math.MaxInt64))
+				time.Sleep(time.Duration(math.MaxInt64))
 			}
 		}
 	}()
