@@ -74,18 +74,20 @@ func unmonitorEpisode(episodeProviderIds *map[string]string, series *jellygen.Ba
 			seriesTitle = *series.OriginalTitle
 		}
 
-		if episode == nil && series.ProviderIds != nil {
-			if seriesTvdbId := (*series.ProviderIds)["Tvdb"]; seriesTvdbId != "" {
-				episode = findEpisodeBySeriesAndEpisodeTvdbIds(seriesTvdbId, episodeTvdbId)
-			}
-		}
-
 		if episode == nil {
-			if seriesTitle == "" {
-				log.Printf("SeriesTitle is nil (episodeTvdbId %d)", episodeTvdbId)
-				return
+			var seriesTvdbId string
+			if series.ProviderIds != nil {
+				seriesTvdbId = (*series.ProviderIds)["Tvdb"]
 			}
-			episode = findEpisodeByTitleAndTvdbEpisodeId(seriesTitle, episodeTvdbId)
+			if seriesTvdbId != "" {
+				episode = findEpisodeBySeriesAndEpisodeTvdbIds(seriesTvdbId, episodeTvdbId)
+			} else {
+				if seriesTitle == "" {
+					log.Printf("SeriesTitle is nil (episodeTvdbId %d)", episodeTvdbId)
+					return
+				}
+				episode = findEpisodeByTitleAndTvdbEpisodeId(seriesTitle, episodeTvdbId)
+			}
 		}
 	} else if episode != nil && episode.Series != nil && episode.Series.Title != nil {
 		seriesTitle = *episode.Series.Title
