@@ -24,7 +24,7 @@ func atoi32(s string) int32 {
 	if i, err := strconv.ParseInt(s, 10, 32); err == nil {
 		return int32(i)
 	}
-	return int32(0)
+	return 0
 }
 
 func ptr[T any](val T) *T {

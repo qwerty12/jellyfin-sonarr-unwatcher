@@ -12,15 +12,26 @@ import (
 )
 
 type sonarrAPIClient struct {
-	url        string
-	apiKey     string
 	httpClient *http.Client
+	baseUrlUrl *url.URL
+	baseUrl    string
+	apiKey     string
 }
 
-func newSonarrAPIClient(baseUrl *url.URL, apiKey string) *sonarrAPIClient {
+func newSonarrAPIClient(hostUrl string, apiKey string) (*sonarrAPIClient, error) {
+	sonarrHostUrl, err := url.Parse(hostUrl)
+	if err != nil {
+		return nil, err
+	}
+	if sonarrHostUrl.Scheme == "" || sonarrHostUrl.Host == "" {
+		return nil, fmt.Errorf("missing scheme/host")
+	}
+
+	sonarrHostUrl = sonarrHostUrl.JoinPath("api", "v3", "/")
 	return &sonarrAPIClient{
-		url:    baseUrl.JoinPath("api", "v3", "/").String(),
-		apiKey: apiKey,
+		baseUrlUrl: sonarrHostUrl,
+		baseUrl:    sonarrHostUrl.String(),
+		apiKey:     apiKey,
 		httpClient: &http.Client{
 			Transport: &http.Transport{
 				Proxy:                 nil, // $HTTP_PROXY etc. ignored
@@ -33,17 +44,15 @@ func newSonarrAPIClient(baseUrl *url.URL, apiKey string) *sonarrAPIClient {
 				ForceAttemptHTTP2:     false,
 			},
 		},
-	}
+	}, nil
 }
 
 func (c *sonarrAPIClient) do(method string, endpoint string, queryParams url.Values, reqBody any, respBody any) error {
-	finalUrl := c.url + endpoint
-	if queryParams != nil {
-		u, err := url.Parse(finalUrl)
-		if err != nil {
-			return err
-		}
-
+	var finalUrl string
+	if queryParams == nil {
+		finalUrl = c.baseUrl + endpoint
+	} else {
+		u := c.baseUrlUrl.JoinPath(endpoint)
 		u.RawQuery = queryParams.Encode()
 
 		finalUrl = u.String()

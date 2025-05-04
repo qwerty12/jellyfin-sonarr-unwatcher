@@ -8,6 +8,10 @@ import (
 )
 
 func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
+	if series == nil {
+		return
+	}
+
 	var seasonNumber, episodeNumber int32
 	if item.IndexNumber != nil {
 		episodeNumber = *item.IndexNumber
@@ -32,7 +36,7 @@ func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
 		return
 	}
 
-	log.Println("Prefetcharr:", seriesTitle, seasonNumber, episodeNumber)
+	log.Printf("Prefetcharr: %s S%dE%d", seriesTitle, seasonNumber, episodeNumber)
 
 	season := findSeason(sonarrSeries, seasonNumber)
 	if season == nil {
@@ -69,7 +73,7 @@ func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
 
 	if nextSeason.Statistics.TotalEpisodeCount != nil && nextSeason.Statistics.EpisodeFileCount != nil {
 		if *nextSeason.Statistics.TotalEpisodeCount > 0 && *nextSeason.Statistics.TotalEpisodeCount == *nextSeason.Statistics.EpisodeFileCount {
-			//log.Println("Skip already downloaded season", *nextSeason.SeasonNumber)
+			//log.Print("Skip already downloaded season ", *nextSeason.SeasonNumber)
 			return
 		}
 	}
@@ -78,7 +82,8 @@ func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
 }
 
 func prefetcharr(sonarrSeries *sonarrt.SeriesResource, season *sonarrt.SeasonResource, jellyfinSeasonNumber int32, item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
-	log.Println("Searching next season", *season.SeasonNumber)
+	seasonNumber := *season.SeasonNumber
+	log.Print("Searching next season ", seasonNumber)
 
 	var err error
 	if season.Monitored == nil || sonarrSeries.Monitored == nil || !*season.Monitored || !*sonarrSeries.Monitored {
@@ -88,19 +93,19 @@ func prefetcharr(sonarrSeries *sonarrt.SeriesResource, season *sonarrt.SeasonRes
 	}
 
 	if err == nil {
-		if *season.SeasonNumber == jellyfinSeasonNumber {
+		if seasonNumber == jellyfinSeasonNumber {
 			unmonitorEpisode(item, series, sonarrSeries) // unmonitor pilot episode again
 		}
 		err = sonarrClient.post("command", nil,
 			map[string]any{
 				"name":         "SeasonSearch",
 				"seriesId":     sonarrSeries.Id,
-				"seasonNumber": *season.SeasonNumber,
+				"seasonNumber": seasonNumber,
 			}, nil)
 	}
 
 	if err != nil {
-		log.Println("Error monitoring season:", err)
+		log.Print("Error monitoring season: ", err)
 	}
 }
 

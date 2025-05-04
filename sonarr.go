@@ -20,16 +20,13 @@ func sonarrInit() {
 		log.Fatal("SONARR_HOST and/or $SONARR_API_KEY is required to be set for unmonitoring")
 	}
 
-	sonarrHostUrl, err := url.Parse(sonarrHost)
+	var err error
+	sonarrClient, err = newSonarrAPIClient(sonarrHost, sonarrApiKey)
 	if err != nil {
-		log.Fatal("$SONARR_HOST failed to ", err)
+		log.Fatal("$SONARR_HOST invalid: ", err)
 	}
-	if sonarrHostUrl.Scheme == "" || sonarrHostUrl.Host == "" {
-		log.Fatal("Invalid $SONARR_HOST URL ", sonarrHost)
-	}
-	sonarrClient = newSonarrAPIClient(sonarrHostUrl, sonarrApiKey)
 
-	log.Println("Sonarr:", sonarrHost)
+	log.Print("Sonarr: ", sonarrHost)
 }
 
 func getRootFolders() []string {
@@ -61,21 +58,14 @@ func unmonitorEpisode(episode *jellygen.BaseItemDto, series *jellygen.BaseItemDt
 		return
 	}
 
-	var episodeTvdbId int32
-	if tvdb := (*episode.ProviderIds)["Tvdb"]; tvdb != "" {
-		episodeTvdbId = atoi32(tvdb)
-	}
-
+	episodeTvdbId := atoi32((*episode.ProviderIds)["Tvdb"])
 	if episodeTvdbId == 0 {
 		log.Print("TVDB episode ID not found")
 		return
 	}
 
 	var seriesTitle string
-	var sonarrEpisode *sonarrt.EpisodeResource
-	if episodeSonarrId := (*episode.ProviderIds)["sonarr"]; episodeSonarrId != "" {
-		sonarrEpisode = findEpisodeBySonarrId(episodeSonarrId, episodeTvdbId)
-	}
+	sonarrEpisode := findEpisodeBySonarrId((*episode.ProviderIds)["sonarr"], episodeTvdbId)
 
 	if series != nil {
 		var seriesTvdbId string
@@ -109,15 +99,17 @@ func unmonitorEpisode(episode *jellygen.BaseItemDto, series *jellygen.BaseItemDt
 	}, nil); err != nil {
 		log.Printf("Failed to unmonitor %s: %v", episodeString, err)
 	} else {
-		log.Println(episodeString, "unmonitored!")
+		log.Print(episodeString, " unmonitored!")
 	}
 }
 
 func findEpisodeBySonarrId(episodeSonarrId string, episodeTvdbId int32) *sonarrt.EpisodeResource {
-	var ep sonarrt.EpisodeResource
-	if err := sonarrClient.get("episode/"+episodeSonarrId, nil, &ep); err == nil {
-		if ep.TvdbId != nil && *ep.TvdbId == episodeTvdbId {
-			return &ep
+	if episodeSonarrId != "" {
+		var ep sonarrt.EpisodeResource
+		if err := sonarrClient.get("episode/"+episodeSonarrId, nil, &ep); err == nil {
+			if ep.TvdbId != nil && *ep.TvdbId == episodeTvdbId {
+				return &ep
+			}
 		}
 	}
 
@@ -181,7 +173,7 @@ func findSonarrSeries(seriesTvdbId string, seriesTitle string) iter.Seq[*sonarrt
 			return
 		}
 
-		//log.Println("No search criteria provided.")
+		//log.Print("No search criteria provided.")
 	}
 }
 

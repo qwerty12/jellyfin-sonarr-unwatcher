@@ -17,8 +17,10 @@ const PATH_JELLYFIN = "/jellyfin"
 
 var remainingEpisodes int32
 
-var sonarrRootFolders []string   // cached for the process's lifetime
-var sonarrRootFoldersSet = false // not atomic.Bool
+var (
+	sonarrRootFolders    []string // cached for the process's lifetime
+	sonarrRootFoldersSet = false  // not atomic.Bool
+)
 
 func isInSonarrFolder(Path *string) bool {
 	if sonarrRootFoldersSet && Path != nil {
@@ -35,8 +37,14 @@ func isInSonarrFolder(Path *string) bool {
 	return true
 }
 
-func basicInputValidation(j *JellyfinPayload) bool {
+func readJellyfinWebhookPayload(r *http.Request, j *JellyfinPayload) bool {
 	// TODO: https://www.alexedwards.net/blog/how-to-properly-parse-a-json-request-body if binding to 0.0.0.0
+	err := json.NewDecoder(r.Body).Decode(j)
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+
 	if j.Item == nil || j.Item.Type == nil {
 		return false
 	}
@@ -54,13 +62,7 @@ func basicInputValidation(j *JellyfinPayload) bool {
 
 func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
 	var j JellyfinPayload
-	err := json.NewDecoder(r.Body).Decode(&j)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	if !basicInputValidation(&j) {
+	if !readJellyfinWebhookPayload(r, &j) {
 		return
 	}
 
@@ -69,17 +71,7 @@ func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
 
 func prefetcharrHandler(_ http.ResponseWriter, r *http.Request) {
 	var j JellyfinPayload
-	err := json.NewDecoder(r.Body).Decode(&j)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	if j.Series == nil {
-		return
-	}
-
-	if !basicInputValidation(&j) {
+	if !readJellyfinWebhookPayload(r, &j) {
 		return
 	}
 
@@ -120,7 +112,7 @@ func main() {
 
 	remainingEpisodes = atoi32(os.Getenv("REMAINING_EPISODES"))
 	if remainingEpisodes > 0 {
-		log.Println("Enabling prefetcharr endpoint, remaining episodes threshold:", remainingEpisodes)
+		log.Print("Enabling prefetcharr endpoint, remaining episodes threshold: ", remainingEpisodes)
 		mux.HandleFunc(http.MethodPost+" /prefetcharr", prefetcharrHandler)
 	}
 
