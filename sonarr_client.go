@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -24,7 +25,7 @@ func newSonarrAPIClient(hostUrl string, apiKey string) (*sonarrAPIClient, error)
 		return nil, err
 	}
 	if sonarrHostUrl.Scheme == "" || sonarrHostUrl.Host == "" {
-		return nil, fmt.Errorf("missing scheme/host")
+		return nil, errors.New("missing scheme/host")
 	}
 
 	sonarrHostUrl = sonarrHostUrl.JoinPath("api", "v3", "/")
@@ -83,7 +84,7 @@ func (c *sonarrAPIClient) do(method string, endpoint string, queryParams url.Val
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to execute %s request for %s: %w", method, finalUrl, err)
+		return err
 	}
 	defer resp.Body.Close()
 

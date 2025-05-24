@@ -141,9 +141,9 @@ func findSonarrSeries(seriesTvdbId string, seriesTitle string) iter.Seq[*sonarrt
 						return
 					}
 				}
-			} /* else {
+			} else {
 				log.Printf("Error fetching series by TVDB ID %s: %v\n", seriesTvdbId, err)
-			}*/
+			}
 
 			return
 		}
@@ -166,9 +166,9 @@ func findSonarrSeries(seriesTvdbId string, seriesTitle string) iter.Seq[*sonarrt
 						}
 					}
 				}
-			} /* else {
-				log.Printf("Failed to get list of all series from Sonarr (to find '%s' by its title): %v", seriesTitle, err)
-			}*/
+			} else {
+				log.Printf("Failed to get list of all series from Sonarr (for '%s'): %v", seriesTitle, err)
+			}
 
 			return
 		}
