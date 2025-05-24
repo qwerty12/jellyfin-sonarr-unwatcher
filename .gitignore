@@ -1,7 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/go,git,diff,patch,backup,windows,jetbrains,jetbrains+all,jetbrains+iml,visualstudiocode,goland,goland+all,goland+iml,archives,compressedarchive,archlinuxpackages
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,git,diff,patch,backup,windows,jetbrains,jetbrains+all,jetbrains+iml,visualstudiocode,goland,goland+all,goland+iml,archives,compressedarchive,archlinuxpackages
 
-*.ahk
+/*.ahk
+/*.http
+/*.json
+/*.py
 
 ### Archives ###
 # It's better to unpack these files and commit the raw source because

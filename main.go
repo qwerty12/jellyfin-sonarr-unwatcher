@@ -108,12 +108,12 @@ func main() {
 	log.Print("Starting unmonitoring for Jellyfin on http://", addr, PATH_JELLYFIN)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc(http.MethodPost+" "+PATH_JELLYFIN, jellyfinHandler)
+	mux.HandleFunc("POST "+PATH_JELLYFIN, jellyfinHandler)
 
 	remainingEpisodes = atoi32(os.Getenv("REMAINING_EPISODES"))
 	if remainingEpisodes > 0 {
-		log.Print("Enabling prefetcharr endpoint, remaining episodes threshold: ", remainingEpisodes)
-		mux.HandleFunc(http.MethodPost+" /prefetcharr", prefetcharrHandler)
+		log.Print("Enabling /prefetcharr endpoint, remaining episodes threshold: ", remainingEpisodes)
+		mux.HandleFunc("POST /prefetcharr", prefetcharrHandler)
 	}
 
 	s := &http.Server{

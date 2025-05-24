@@ -5,6 +5,7 @@ import (
 	"jellyfin-sonarr-unwatcher/internal/sonarrt"
 	"log"
 	"strconv"
+	"time"
 )
 
 func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
@@ -59,12 +60,12 @@ func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
 
 	var nextSeason *sonarrt.SeasonResource
 	if isPilot && isOnlyEpisode {
-		log.Print("Stand-alone pilot episode detected, target first season")
+		log.Print("Prefetcharr: Stand-alone pilot episode detected, target first season")
 		nextSeason = season
 	} else if s := findSeason(sonarrSeries, seasonNumber+1); s != nil {
 		nextSeason = s
 	} else {
-		log.Print("Next season not known, monitor new seasons instead")
+		log.Print("Prefetcharr: Next season not known, monitor new seasons instead")
 		sonarrSeries.MonitorNewItems = ptr(sonarrt.NewItemMonitorTypesAll)
 		sonarrSeries.Monitored = ptr(true)
 		_ = putSeries(sonarrSeries)
@@ -73,7 +74,7 @@ func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
 
 	if nextSeason.Statistics.TotalEpisodeCount != nil && nextSeason.Statistics.EpisodeFileCount != nil {
 		if *nextSeason.Statistics.TotalEpisodeCount > 0 && *nextSeason.Statistics.TotalEpisodeCount == *nextSeason.Statistics.EpisodeFileCount {
-			//log.Print("Skip already downloaded season ", *nextSeason.SeasonNumber)
+			//log.Print("Prefetcharr: Skip already downloaded season ", *nextSeason.SeasonNumber)
 			return
 		}
 	}
@@ -83,7 +84,7 @@ func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
 
 func prefetcharr(sonarrSeries *sonarrt.SeriesResource, season *sonarrt.SeasonResource, jellyfinSeasonNumber int32, item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
 	seasonNumber := *season.SeasonNumber
-	log.Print("Searching next season ", seasonNumber)
+	log.Print("Prefetcharr: Searching next season ", seasonNumber)
 
 	var err error
 	if season.Monitored == nil || sonarrSeries.Monitored == nil || !*season.Monitored || !*sonarrSeries.Monitored {
@@ -93,19 +94,24 @@ func prefetcharr(sonarrSeries *sonarrt.SeriesResource, season *sonarrt.SeasonRes
 	}
 
 	if err == nil {
-		if seasonNumber == jellyfinSeasonNumber {
-			unmonitorEpisode(item, series, sonarrSeries) // unmonitor pilot episode again
-		}
 		err = sonarrClient.post("command", nil,
 			map[string]any{
 				"name":         "SeasonSearch",
-				"seriesId":     sonarrSeries.Id,
 				"seasonNumber": seasonNumber,
+				"seriesId":     sonarrSeries.Id,
 			}, nil)
+
+		if seasonNumber == jellyfinSeasonNumber {
+			go func() {
+				log.Print("Prefetcharr: waiting two minutes to unmonitor pilot episode again")
+				time.Sleep(2 * time.Minute)
+				unmonitorEpisode(item, series, sonarrSeries)
+			}()
+		}
 	}
 
 	if err != nil {
-		log.Print("Error monitoring season: ", err)
+		log.Print("Prefetcharr: Error monitoring season: ", err)
 	}
 }
 

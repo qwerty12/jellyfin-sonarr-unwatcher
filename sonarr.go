@@ -17,7 +17,7 @@ func sonarrInit() {
 	sonarrHost := os.Getenv("SONARR_HOST")
 	sonarrApiKey := os.Getenv("SONARR_API_KEY")
 	if sonarrHost == "" || sonarrApiKey == "" {
-		log.Fatal("SONARR_HOST and/or $SONARR_API_KEY is required to be set for unmonitoring")
+		log.Fatal("$SONARR_HOST and/or $SONARR_API_KEY is required to be set for unmonitoring")
 	}
 
 	var err error
