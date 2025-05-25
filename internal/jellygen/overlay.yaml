@@ -26,3 +26,319 @@ actions:
       #x-omitempty: true
       x-oapi-codegen-extra-tags:
         json: ProviderIds,omitempty,omitzero
+  - target: $..*[?(@.$ref == '#/components/schemas/RemoteSearchResult')]
+    description: RemoteSearchResult gets included for no reason; remove it
+    remove: true
+  - target: $["paths"]
+    description: Add minimal path with single tag so oapi-codegen only includes this struct
+    update:
+      "/BaseItemDto": {"get": {"tags": ["BaseItemDto"], "responses": {"200": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/BaseItemDto"}}}}}}}
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ServerId"]
+    description: remove unneeded fields out of BaseItemDto
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Etag"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SourceType"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["PlaylistItemId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["DateCreated"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["DateLastMediaAdded"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ExtraType"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AirsBeforeSeasonNumber"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AirsAfterSeasonNumber"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AirsBeforeEpisodeNumber"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CanDelete"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CanDownload"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["HasLyrics"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["HasSubtitles"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["PreferredMetadataLanguage"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["PreferredMetadataCountryCode"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Container"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SortName"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ForcedSortName"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Video3DFormat"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["PremiereDate"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ExternalUrls"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["MediaSources"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CriticRating"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ProductionLocations"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["EnableMediaSourceDisplay"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["OfficialRating"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CustomRating"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ChannelId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ChannelName"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Overview"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Taglines"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Genres"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CommunityRating"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CumulativeRunTimeTicks"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["RunTimeTicks"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["PlayAccess"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AspectRatio"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ProductionYear"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsPlaceHolder"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Number"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ChannelNumber"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IndexNumberEnd"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["RemoteTrailers"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsHD"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsFolder"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["People"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Studios"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["GenreItems"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentLogoItemId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentBackdropItemId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentBackdropImageTags"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["LocalTrailerCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["RecursiveItemCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ChildCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SeriesName"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SeriesId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SeasonId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SpecialFeatureCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["DisplayPreferencesId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Status"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AirTime"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AirDays"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Tags"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["PrimaryImageAspectRatio"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Artists"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ArtistItems"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Album"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CollectionType"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["DisplayOrder"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AlbumId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AlbumPrimaryImageTag"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SeriesPrimaryImageTag"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AlbumArtist"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AlbumArtists"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SeasonName"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["MediaStreams"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["VideoType"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["PartCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["MediaSourceCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ImageTags"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["BackdropImageTags"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ScreenshotImageTags"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentLogoImageTag"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentArtItemId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentArtImageTag"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SeriesThumbImageTag"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ImageBlurHashes"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SeriesStudio"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentThumbItemId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentThumbImageTag"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentPrimaryImageItemId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ParentPrimaryImageTag"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Chapters"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Trickplay"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["LocationType"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsoType"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["MediaType"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["EndDate"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["LockedFields"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["TrailerCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["MovieCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SeriesCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ProgramCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["EpisodeCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SongCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["AlbumCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ArtistCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["MusicVideoCount"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["LockData"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Width"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Height"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CameraMake"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CameraModel"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Software"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ExposureTime"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["FocalLength"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ImageOrientation"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Aperture"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ShutterSpeed"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Latitude"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Longitude"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Altitude"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsoSpeedRating"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["SeriesTimerId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ProgramId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ChannelPrimaryImageTag"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["StartDate"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CompletionPercentage"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsRepeat"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["EpisodeTitle"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ChannelType"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Audio"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsMovie"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsSports"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsSeries"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsLive"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsNews"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsKids"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["IsPremiere"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["TimerId"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["NormalizationGain"]
+    remove: true
+  - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["CurrentProgram"]
+    remove: true
+  - target: $["components"]["schemas"]["UserItemDataDto"]["properties"]["Rating"]
+    remove: true
+  - target: $["components"]["schemas"]["UserItemDataDto"]["properties"]["PlayedPercentage"]
+    remove: true
+  - target: $["components"]["schemas"]["UserItemDataDto"]["properties"]["UnplayedItemCount"]
+    remove: true
+  - target: $["components"]["schemas"]["UserItemDataDto"]["properties"]["PlaybackPositionTicks"]
+    remove: true
+  - target: $["components"]["schemas"]["UserItemDataDto"]["properties"]["PlayCount"]
+    remove: true
+  - target: $["components"]["schemas"]["UserItemDataDto"]["properties"]["Likes"]
+    remove: true
+  - target: $["components"]["schemas"]["UserItemDataDto"]["properties"]["LastPlayedDate"]
+    remove: true
+  - target: $["components"]["schemas"]["UserItemDataDto"]["properties"]["Played"]
+    remove: true
+  - target: $["components"]["schemas"]["UserItemDataDto"]["properties"]["Key"]
+    remove: true
+  - target: $["components"]["schemas"]["UserItemDataDto"]["properties"]["ItemId"]
+    remove: true

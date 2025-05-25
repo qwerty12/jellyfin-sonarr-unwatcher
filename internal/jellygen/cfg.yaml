@@ -2,12 +2,11 @@
 package: jellygen
 generate:
   models: true
+compatibility:
+  always-prefix-enum-values: true
 output-options:
   include-tags:
-    - User
-  exclude-operation-ids:
-    - LogFile
-    - UploadLyrics
+    - BaseItemDto
   disable-type-aliases-for-type: []
   overlay:
     path: overlay.yaml
