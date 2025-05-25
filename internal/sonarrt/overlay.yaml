@@ -7,3 +7,142 @@ actions:
   - target: $["paths"]["/"]
     description: 'error generating code: error creating operation definitions: path / has 0 positional parameters, but spec has 1 declared'
     remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["seriesId"]
+    description: remove unneeded fields
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["episodeFileId"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["title"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["airDate"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["airDateUtc"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["lastSearchTime"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["runtime"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["finaleType"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["overview"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["episodeFile"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["hasFile"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["absoluteEpisodeNumber"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["sceneAbsoluteEpisodeNumber"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["sceneEpisodeNumber"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["sceneSeasonNumber"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["unverifiedSceneNumbering"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["endTime"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["grabDate"]
+    remove: true
+  - target: $["components"]["schemas"]["EpisodeResource"]["properties"]["images"]
+    remove: true
+  - target: $["components"]["schemas"]["RootFolderResource"]["properties"]["id"]
+    remove: true
+  - target: $["components"]["schemas"]["RootFolderResource"]["properties"]["accessible"]
+    remove: true
+  - target: $["components"]["schemas"]["RootFolderResource"]["properties"]["freeSpace"]
+    remove: true
+  - target: $["components"]["schemas"]["RootFolderResource"]["properties"]["unmappedFolders"]
+    remove: true
+  - target: $["components"]["schemas"]["SeasonResource"]["properties"]["images"]
+    remove: true
+  - target: $["components"]["schemas"]["SeasonStatisticsResource"]["properties"]["nextAiring"]
+    remove: true
+  - target: $["components"]["schemas"]["SeasonStatisticsResource"]["properties"]["previousAiring"]
+    remove: true
+  - target: $["components"]["schemas"]["SeasonStatisticsResource"]["properties"]["episodeCount"]
+    remove: true
+  - target: $["components"]["schemas"]["SeasonStatisticsResource"]["properties"]["sizeOnDisk"]
+    remove: true
+  - target: $["components"]["schemas"]["SeasonStatisticsResource"]["properties"]["releaseGroups"]
+    remove: true
+  - target: $["components"]["schemas"]["SeasonStatisticsResource"]["properties"]["percentOfEpisodes"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["alternateTitles"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["sortTitle"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["status"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["ended"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["profileName"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["overview"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["nextAiring"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["previousAiring"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["network"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["airTime"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["images"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["originalLanguage"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["remotePoster"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["year"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["path"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["qualityProfileId"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["seasonFolder"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["useSceneNumbering"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["runtime"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["tvRageId"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["tvMazeId"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["tmdbId"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["firstAired"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["lastAired"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["seriesType"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["cleanTitle"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["imdbId"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["titleSlug"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["rootFolderPath"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["folder"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["certification"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["genres"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["tags"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["added"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["addOptions"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["ratings"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["statistics"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["episodesChanged"]
+    remove: true
+  - target: $["components"]["schemas"]["SeriesResource"]["properties"]["languageProfileId"]
+    remove: true

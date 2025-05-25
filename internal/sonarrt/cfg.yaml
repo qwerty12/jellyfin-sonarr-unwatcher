@@ -2,9 +2,10 @@
 package: sonarrt
 generate:
   models: true
+compatibility:
+  always-prefix-enum-values: true
 output-options:
   include-tags:
-    - Series
     - Episode
     - RootFolder
   overlay:
