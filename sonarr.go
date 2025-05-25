@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/puzpuzpuz/xsync/v4"
 	"iter"
 	"jellyfin-sonarr-unwatcher/internal/jellygen"
 	"jellyfin-sonarr-unwatcher/internal/sonarrt"
@@ -12,6 +13,7 @@ import (
 )
 
 var sonarrClient *sonarrAPIClient
+var alreadyUnmonitoredCache *xsync.Map[string, int64]
 
 func sonarrInit() {
 	sonarrHost := os.Getenv("SONARR_HOST")
@@ -26,10 +28,11 @@ func sonarrInit() {
 		log.Fatal("$SONARR_HOST invalid: ", err)
 	}
 
+	alreadyUnmonitoredCache = xsync.NewMap[string, int64](xsync.WithPresize(100))
 	log.Print("Sonarr: ", sonarrHost)
 }
 
-func getRootFolders() []string {
+func getRootFolders() *[]string {
 	var rootFolders []sonarrt.RootFolderResource
 	if err := sonarrClient.get("rootfolder", nil, &rootFolders); err == nil {
 		paths := make([]string, 0, len(rootFolders))
@@ -39,7 +42,7 @@ func getRootFolders() []string {
 			}
 		}
 
-		return paths
+		return &paths
 	}
 
 	return nil
@@ -73,6 +76,7 @@ func unmonitorEpisode(episode *jellygen.BaseItemDto, series *jellygen.BaseItemDt
 
 		if sonarrEpisode == nil {
 			if sonarrSeries == nil {
+				// TODO: if this errors out (e.g. because Sonarr couldn't be contacted), remove from cache?
 				sonarrEpisode = findEpisodeByTvdbIdsOrTitle(seriesTvdbId, seriesTitle, episodeTvdbId)
 			} else {
 				sonarrEpisode = findEpisodeInSeries(*sonarrSeries.Id, episodeTvdbId)

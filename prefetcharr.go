@@ -1,19 +1,53 @@
 package main
 
 import (
+	"github.com/puzpuzpuz/xsync/v4"
 	"jellyfin-sonarr-unwatcher/internal/jellygen"
 	"jellyfin-sonarr-unwatcher/internal/sonarrt"
 	"log"
+	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
+
+type alreadySeenSeason struct {
+	sonarrId     int32
+	tvdbId       int32
+	seasonNumber int32
+}
+
+var remainingEpisodes int32
+var alreadyPrefetchedCache *xsync.Map[alreadySeenSeason, int64]
+
+func enablePrefetcharr(mux *http.ServeMux) {
+	remainingEpisodes = atoi32(os.Getenv("REMAINING_EPISODES"))
+	if remainingEpisodes > 0 {
+		log.Print("Enabling /prefetcharr endpoint, remaining episodes threshold: ", remainingEpisodes)
+		alreadyPrefetchedCache = xsync.NewMap[alreadySeenSeason, int64](xsync.WithPresize(50))
+		mux.HandleFunc("POST /prefetcharr", prefetcharrHandler)
+	}
+}
+
+func prefetcharrHandler(_ http.ResponseWriter, r *http.Request) {
+	var j JellyfinPayload
+	if !readJellyfinWebhookPayload(r, &j) {
+		return
+	}
+
+	if !isInSonarrFolder(j.Item.Path) {
+		return
+	}
+
+	searchNext(j.Item, j.Series)
+}
 
 func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
 	if series == nil {
 		return
 	}
 
-	var seasonNumber, episodeNumber int32
+	var seasonNumber, episodeNumber, episodecount int32
 	if item.IndexNumber != nil {
 		episodeNumber = *item.IndexNumber
 	}
@@ -47,7 +81,6 @@ func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
 
 	isPilot := episodeNumber == 1 && seasonNumber == 1
 	isOnlyEpisode := season.Statistics.EpisodeFileCount != nil && *season.Statistics.EpisodeFileCount == 1
-	episodecount := int32(0)
 	if season.Statistics.TotalEpisodeCount != nil {
 		episodecount = *season.Statistics.TotalEpisodeCount
 	}
@@ -69,6 +102,19 @@ func searchNext(item *jellygen.BaseItemDto, series *jellygen.BaseItemDto) {
 		sonarrSeries.MonitorNewItems = ptr(sonarrt.NewItemMonitorTypesAll)
 		sonarrSeries.Monitored = ptr(true)
 		_ = putSeries(sonarrSeries)
+		return
+	}
+
+	ass := alreadySeenSeason{
+		sonarrId:     *sonarrSeries.Id,
+		seasonNumber: *nextSeason.SeasonNumber,
+	}
+	if sonarrSeries.TvdbId != nil {
+		ass.tvdbId = *sonarrSeries.TvdbId
+	}
+
+	if _, loaded := alreadyPrefetchedCache.LoadAndStore(ass, time.Now().Unix()); loaded {
+		//log.Print("Prefetcharr: skip previously processed item")
 		return
 	}
 
@@ -102,8 +148,8 @@ func prefetcharr(sonarrSeries *sonarrt.SeriesResource, season *sonarrt.SeasonRes
 			}, nil)
 
 		if seasonNumber == jellyfinSeasonNumber {
+			//log.Print("Prefetcharr: waiting two minutes to unmonitor pilot episode again")
 			go func() {
-				log.Print("Prefetcharr: waiting two minutes to unmonitor pilot episode again")
 				time.Sleep(2 * time.Minute)
 				unmonitorEpisode(item, series, sonarrSeries)
 			}()

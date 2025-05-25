@@ -3,102 +3,36 @@
 package main
 
 import (
-	"encoding/json"
-	"jellyfin-sonarr-unwatcher/internal/jellygen"
 	"log"
-	"math"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
 const PATH_JELLYFIN = "/jellyfin"
 
-var remainingEpisodes int32
-
-var (
-	sonarrRootFolders    []string // cached for the process's lifetime
-	sonarrRootFoldersSet = false  // not atomic.Bool
-)
-
-func isInSonarrFolder(Path *string) bool {
-	if sonarrRootFoldersSet && Path != nil {
-		itemPath := *Path
-		for _, rootFolder := range sonarrRootFolders {
-			if strings.HasPrefix(itemPath, rootFolder) {
-				return true
-			}
-		}
-
-		return false
+func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
+	var j JellyfinPayload
+	if !readJellyfinWebhookPayload(r, &j) || j.Item.Id == nil {
+		return
 	}
 
-	return true
-}
-
-func readJellyfinWebhookPayload(r *http.Request, j *JellyfinPayload) bool {
-	// TODO: https://www.alexedwards.net/blog/how-to-properly-parse-a-json-request-body if binding to 0.0.0.0
-	err := json.NewDecoder(r.Body).Decode(j)
-	if err != nil {
-		log.Print(err)
-		return false
-	}
-
-	if j.Item == nil || j.Item.Type == nil {
-		return false
-	}
-
-	if *j.Item.Type != jellygen.BaseItemKindEpisode {
-		return false
+	if _, loaded := alreadyUnmonitoredCache.LoadOrCompute(*j.Item.Id, func() (newValue int64, cancel bool) {
+		return time.Now().Unix(), false
+	}); loaded {
+		return
 	}
 
 	if !isInSonarrFolder(j.Item.Path) {
-		return false
-	}
-
-	return true
-}
-
-func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
-	var j JellyfinPayload
-	if !readJellyfinWebhookPayload(r, &j) {
 		return
 	}
 
 	unmonitorEpisode(j.Item, j.Series, nil)
 }
 
-func prefetcharrHandler(_ http.ResponseWriter, r *http.Request) {
-	var j JellyfinPayload
-	if !readJellyfinWebhookPayload(r, &j) {
-		return
-	}
-
-	searchNext(j.Item, j.Series)
-}
-
 func main() {
 	sonarrInit()
-	go func() {
-		const retries = 6
-		for i := 0; i <= retries; i++ {
-			rootFolders := getRootFolders()
-			if rootFolders != nil {
-				if len(rootFolders) > 0 {
-					sonarrRootFolders = rootFolders
-					sonarrRootFoldersSet = true
-				}
-				return
-			}
-
-			if i <= 33 {
-				time.Sleep(time.Duration(1<<i) * time.Second)
-			} else {
-				time.Sleep(time.Duration(math.MaxInt64))
-			}
-		}
-	}()
+	go pollInitialRootFolders()
 
 	jellyfinPort := os.Getenv("JELLYFIN_PORT")
 	if jellyfinPort == "" {
@@ -109,12 +43,29 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST "+PATH_JELLYFIN, jellyfinHandler)
+	enablePrefetcharr(mux)
 
-	remainingEpisodes = atoi32(os.Getenv("REMAINING_EPISODES"))
-	if remainingEpisodes > 0 {
-		log.Print("Enabling /prefetcharr endpoint, remaining episodes threshold: ", remainingEpisodes)
-		mux.HandleFunc("POST /prefetcharr", prefetcharrHandler)
-	}
+	go func() {
+		for t := range time.Tick(2 * 24 * time.Hour) {
+			nowStart := t.Unix()
+
+			alreadyUnmonitoredCache.Range(func(key string, value int64) bool {
+				if nowStart > value {
+					alreadyUnmonitoredCache.Delete(key)
+				}
+				return true
+			})
+
+			if alreadyPrefetchedCache != nil {
+				alreadyPrefetchedCache.Range(func(key alreadySeenSeason, value int64) bool {
+					if nowStart > value {
+						alreadyPrefetchedCache.Delete(key)
+					}
+					return true
+				})
+			}
+		}
+	}()
 
 	s := &http.Server{
 		Addr:                         addr,

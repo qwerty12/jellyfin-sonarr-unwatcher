@@ -7,6 +7,8 @@ tool (
 	github.com/tc-hib/go-winres
 )
 
+require github.com/puzpuzpuz/xsync/v4 v4.1.0
+
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
