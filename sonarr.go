@@ -28,7 +28,7 @@ func sonarrInit() {
 		log.Fatal("$SONARR_HOST invalid: ", err)
 	}
 
-	alreadyUnmonitoredCache = pb.NewMapOf[string, int64](pb.WithPresize(100), pb.WithShrinkEnabled())
+	alreadyUnmonitoredCache = pb.NewMapOf[string, int64](pb.WithPresize(50), pb.WithShrinkEnabled())
 	log.Print("Sonarr: ", sonarrHost)
 }
 

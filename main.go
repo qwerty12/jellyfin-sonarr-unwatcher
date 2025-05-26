@@ -47,18 +47,25 @@ func main() {
 	enablePrefetcharr(mux)
 
 	go func() {
-		for t := range time.Tick(2 * 24 * time.Hour) {
-			nowStart := t.Unix()
+		var tickerUnmonitored, tickerPrefetched <-chan time.Time
+		tickerUnmonitored = time.Tick(2 * time.Hour)
+		if alreadyPrefetchedCache != nil {
+			tickerPrefetched = time.Tick(2 * 24 * time.Hour)
+		}
 
-			//log.Printf("alreadyUnmonitoredCache %s", alreadyUnmonitoredCache.Stats().ToString())
-			alreadyUnmonitoredCache.RangeEntry(func(e *pb.EntryOf[string, int64]) bool {
-				if nowStart > e.Value {
-					alreadyUnmonitoredCache.Delete(e.Key)
-				}
-				return true
-			})
-
-			if alreadyPrefetchedCache != nil {
+		for {
+			select {
+			case t := <-tickerUnmonitored:
+				nowStart := t.Unix()
+				//log.Printf("alreadyUnmonitoredCache %s", alreadyUnmonitoredCache.Stats().ToString())
+				alreadyUnmonitoredCache.RangeEntry(func(e *pb.EntryOf[string, int64]) bool {
+					if nowStart > e.Value {
+						alreadyUnmonitoredCache.Delete(e.Key)
+					}
+					return true
+				})
+			case t := <-tickerPrefetched:
+				nowStart := t.Unix()
 				//log.Printf("alreadyPrefetchedCache %s", alreadyPrefetchedCache.Stats().ToString())
 				alreadyPrefetchedCache.RangeEntry(func(e *pb.EntryOf[alreadySeenSeason, int64]) bool {
 					if nowStart > e.Value {
