@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/puzpuzpuz/xsync/v4"
+	"github.com/llxisdsh/pb"
 	"iter"
 	"jellyfin-sonarr-unwatcher/internal/jellygen"
 	"jellyfin-sonarr-unwatcher/internal/sonarrt"
@@ -13,7 +13,7 @@ import (
 )
 
 var sonarrClient *sonarrAPIClient
-var alreadyUnmonitoredCache *xsync.Map[string, int64]
+var alreadyUnmonitoredCache *pb.MapOf[string, int64]
 
 func sonarrInit() {
 	sonarrHost := os.Getenv("SONARR_HOST")
@@ -28,7 +28,7 @@ func sonarrInit() {
 		log.Fatal("$SONARR_HOST invalid: ", err)
 	}
 
-	alreadyUnmonitoredCache = xsync.NewMap[string, int64](xsync.WithPresize(100))
+	alreadyUnmonitoredCache = pb.NewMapOf[string, int64](pb.WithPresize(100), pb.WithShrinkEnabled())
 	log.Print("Sonarr: ", sonarrHost)
 }
 

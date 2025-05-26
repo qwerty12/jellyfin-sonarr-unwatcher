@@ -7,7 +7,7 @@ tool (
 	github.com/tc-hib/go-winres
 )
 
-require github.com/puzpuzpuz/xsync/v4 v4.1.0
+require github.com/llxisdsh/pb v1.4.7
 
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
@@ -31,6 +31,7 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/image v0.12.0 // indirect
 	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

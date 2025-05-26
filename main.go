@@ -3,6 +3,7 @@
 package main
 
 import (
+	"github.com/llxisdsh/pb"
 	"log"
 	"net/http"
 	"os"
@@ -17,11 +18,11 @@ func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, loaded := alreadyUnmonitoredCache.LoadOrCompute(*j.Item.Id, func() (newValue int64, cancel bool) {
-		return time.Now().Unix(), false
-	}); loaded {
+	id := *j.Item.Id
+	if alreadyUnmonitoredCache.HasKey(id) {
 		return
 	}
+	alreadyUnmonitoredCache.Store(id, time.Now().Unix())
 
 	if !isInSonarrFolder(j.Item.Path) {
 		return
@@ -49,17 +50,19 @@ func main() {
 		for t := range time.Tick(2 * 24 * time.Hour) {
 			nowStart := t.Unix()
 
-			alreadyUnmonitoredCache.Range(func(key string, value int64) bool {
-				if nowStart > value {
-					alreadyUnmonitoredCache.Delete(key)
+			//log.Printf("alreadyUnmonitoredCache %s", alreadyUnmonitoredCache.Stats().ToString())
+			alreadyUnmonitoredCache.RangeEntry(func(e *pb.EntryOf[string, int64]) bool {
+				if nowStart > e.Value {
+					alreadyUnmonitoredCache.Delete(e.Key)
 				}
 				return true
 			})
 
 			if alreadyPrefetchedCache != nil {
-				alreadyPrefetchedCache.Range(func(key alreadySeenSeason, value int64) bool {
-					if nowStart > value {
-						alreadyPrefetchedCache.Delete(key)
+				//log.Printf("alreadyPrefetchedCache %s", alreadyPrefetchedCache.Stats().ToString())
+				alreadyPrefetchedCache.RangeEntry(func(e *pb.EntryOf[alreadySeenSeason, int64]) bool {
+					if nowStart > e.Value {
+						alreadyPrefetchedCache.Delete(e.Key)
 					}
 					return true
 				})

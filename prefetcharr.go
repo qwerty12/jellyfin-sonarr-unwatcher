@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/puzpuzpuz/xsync/v4"
+	"github.com/llxisdsh/pb"
 	"jellyfin-sonarr-unwatcher/internal/jellygen"
 	"jellyfin-sonarr-unwatcher/internal/sonarrt"
 	"log"
@@ -18,13 +18,13 @@ type alreadySeenSeason struct {
 }
 
 var remainingEpisodes int32
-var alreadyPrefetchedCache *xsync.Map[alreadySeenSeason, int64]
+var alreadyPrefetchedCache *pb.MapOf[alreadySeenSeason, int64]
 
 func enablePrefetcharr(mux *http.ServeMux) {
 	remainingEpisodes = atoi32(os.Getenv("REMAINING_EPISODES"))
 	if remainingEpisodes > 0 {
 		log.Print("Enabling /prefetcharr endpoint, remaining episodes threshold: ", remainingEpisodes)
-		alreadyPrefetchedCache = xsync.NewMap[alreadySeenSeason, int64](xsync.WithPresize(50))
+		alreadyPrefetchedCache = pb.NewMapOf[alreadySeenSeason, int64](pb.WithPresize(50), pb.WithShrinkEnabled())
 		mux.HandleFunc("POST /prefetcharr", prefetcharrHandler)
 	}
 }
