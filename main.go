@@ -1,4 +1,4 @@
-//go:generate go tool go-winres make
+//go:generate go tool -modfile=go.tool.mod go-winres make
 
 package main
 
