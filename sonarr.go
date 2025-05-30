@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/llxisdsh/pb"
 	"iter"
-	"jellyfin-sonarr-unwatcher/internal/jellygen"
-	"jellyfin-sonarr-unwatcher/internal/sonarrt"
 	"log"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
+
+	"jellyfin-sonarr-unwatcher/internal/jellygen"
+	"jellyfin-sonarr-unwatcher/internal/sonarrt"
+
+	"github.com/llxisdsh/pb"
 )
 
 var sonarrClient *sonarrAPIClient
@@ -54,10 +57,16 @@ func unmonitorEpisode(episode *jellygen.BaseItemDto, series *jellygen.BaseItemDt
 	}
 
 	if episode.UserData != nil && episode.UserData.IsFavorite != nil && *episode.UserData.IsFavorite {
+		if series != nil && series.Name != nil && episode.ParentIndexNumber != nil && episode.IndexNumber != nil {
+			log.Printf("Not unmonitoring %s S%02dE%02d - episode favourited in Jellyfin", *series.Name, *episode.ParentIndexNumber, *episode.IndexNumber)
+		}
 		return
 	}
 
 	if series != nil && series.UserData != nil && series.UserData.IsFavorite != nil && *series.UserData.IsFavorite { // oh Go...
+		if series.Name != nil && episode.ParentIndexNumber != nil && episode.IndexNumber != nil {
+			log.Printf("Not unmonitoring %s S%02dE%02d - series favourited in Jellyfin", *series.Name, *episode.ParentIndexNumber, *episode.IndexNumber)
+		}
 		return
 	}
 
@@ -102,8 +111,54 @@ func unmonitorEpisode(episode *jellygen.BaseItemDto, series *jellygen.BaseItemDt
 		Monitored:  ptr(false),
 	}, nil); err != nil {
 		log.Printf("Failed to unmonitor %s: %v", episodeString, err)
-	} else {
-		log.Print(episodeString, " unmonitored!")
+		return
+	}
+
+	log.Print(episodeString, " unmonitored!")
+	removeBlocklistedRlsesForEpisode(sonarrEpisode)
+}
+
+func removeBlocklistedRlsesForEpisode(sonarrEpisode *sonarrt.EpisodeResource) {
+	if sonarrEpisode.Series == nil || sonarrEpisode.Series.Id == nil {
+		return
+	}
+
+	var bulkDeleteIds []int32
+	sonarrEpId := *sonarrEpisode.Id
+	values := url.Values{
+		"pageSize":  []string{"100"},
+		"seriesIds": []string{strconv.Itoa(int(*sonarrEpisode.Series.Id))},
+	}
+
+	pages := 1
+	for i := 1; i <= pages; i++ {
+		var blRlses sonarrt.BlocklistResourcePagingResource
+
+		values.Set("page", strconv.Itoa(i))
+		if err := sonarrClient.get("blocklist", values, &blRlses); err != nil || blRlses.Records == nil {
+			break
+		}
+
+		if i == 1 {
+			if blRlses.PageSize == nil || blRlses.TotalRecords == nil || *blRlses.TotalRecords == 0 {
+				return
+			}
+			pages = 1 + (int(*blRlses.TotalRecords)-1)/int(*blRlses.PageSize)
+		} else {
+			if len(*blRlses.Records) == 0 {
+				break
+			}
+		}
+
+		for _, blRecord := range *blRlses.Records {
+			if blRecord.Id != nil && blRecord.EpisodeIds != nil && slices.Contains(*blRecord.EpisodeIds, sonarrEpId) {
+				bulkDeleteIds = append(bulkDeleteIds, *blRecord.Id)
+			}
+		}
+	}
+
+	if len(bulkDeleteIds) != 0 {
+		_ = sonarrClient.delete("blocklist/bulk", nil, sonarrt.BlocklistBulkResource{Ids: &bulkDeleteIds})
 	}
 }
 
@@ -111,7 +166,7 @@ func findEpisodeBySonarrId(episodeSonarrId string, episodeTvdbId int32) *sonarrt
 	if episodeSonarrId != "" {
 		var ep sonarrt.EpisodeResource
 		if err := sonarrClient.get("episode/"+episodeSonarrId, nil, &ep); err == nil {
-			if ep.TvdbId != nil && *ep.TvdbId == episodeTvdbId {
+			if ep.Id != nil && ep.TvdbId != nil && *ep.TvdbId == episodeTvdbId {
 				return &ep
 			}
 		}
@@ -191,7 +246,7 @@ func findEpisodeInSeries(seriesId int32, episodeTvdbId int32) *sonarrt.EpisodeRe
 	}
 
 	for _, ep := range episodeList {
-		if ep.TvdbId != nil && *ep.TvdbId == episodeTvdbId {
+		if ep.Id != nil && ep.TvdbId != nil && *ep.TvdbId == episodeTvdbId {
 			return &ep
 		}
 	}

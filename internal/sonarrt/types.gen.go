@@ -106,6 +106,13 @@ const (
 	SeriesTypesStandard SeriesTypes = "standard"
 )
 
+// Defines values for SortDirection.
+const (
+	SortDirectionAscending  SortDirection = "ascending"
+	SortDirectionDefault    SortDirection = "default"
+	SortDirectionDescending SortDirection = "descending"
+)
+
 // AddSeriesOptions defines model for AddSeriesOptions.
 type AddSeriesOptions struct {
 	IgnoreEpisodesWithFiles      *bool         `json:"ignoreEpisodesWithFiles,omitempty"`
@@ -122,6 +129,45 @@ type AlternateTitleResource struct {
 	SceneSeasonNumber *int32  `json:"sceneSeasonNumber"`
 	SeasonNumber      *int32  `json:"seasonNumber"`
 	Title             *string `json:"title"`
+}
+
+// BlocklistBulkResource defines model for BlocklistBulkResource.
+type BlocklistBulkResource struct {
+	Ids *[]int32 `json:"ids"`
+}
+
+// BlocklistResource defines model for BlocklistResource.
+type BlocklistResource struct {
+	CustomFormats *[]CustomFormatResource `json:"customFormats"`
+	Date          *time.Time              `json:"date,omitempty"`
+	EpisodeIds    *[]int32                `json:"episodeIds"`
+	Id            *int32                  `json:"id,omitempty"`
+	Indexer       *string                 `json:"indexer"`
+	Languages     *[]Language             `json:"languages"`
+	Message       *string                 `json:"message"`
+	Protocol      *DownloadProtocol       `json:"protocol,omitempty"`
+	Quality       *QualityModel           `json:"quality,omitempty"`
+	Series        *SeriesResource         `json:"series,omitempty"`
+	SeriesId      *int32                  `json:"seriesId,omitempty"`
+	SourceTitle   *string                 `json:"sourceTitle"`
+}
+
+// BlocklistResourcePagingResource defines model for BlocklistResourcePagingResource.
+type BlocklistResourcePagingResource struct {
+	Page          *int32               `json:"page,omitempty"`
+	PageSize      *int32               `json:"pageSize,omitempty"`
+	Records       *[]BlocklistResource `json:"records"`
+	SortDirection *SortDirection       `json:"sortDirection,omitempty"`
+	SortKey       *string              `json:"sortKey"`
+	TotalRecords  *int32               `json:"totalRecords,omitempty"`
+}
+
+// CustomFormatResource defines model for CustomFormatResource.
+type CustomFormatResource struct {
+	Id                              *int32                             `json:"id,omitempty"`
+	IncludeCustomFormatWhenRenaming *bool                              `json:"includeCustomFormatWhenRenaming"`
+	Name                            *string                            `json:"name"`
+	Specifications                  *[]CustomFormatSpecificationSchema `json:"specifications"`
 }
 
 // CustomFormatSpecificationSchema defines model for CustomFormatSpecificationSchema.
@@ -347,6 +393,12 @@ type Quality struct {
 	Source     *QualitySource `json:"source,omitempty"`
 }
 
+// QualityModel defines model for QualityModel.
+type QualityModel struct {
+	Quality  *Quality  `json:"quality,omitempty"`
+	Revision *Revision `json:"revision,omitempty"`
+}
+
 // QualityProfileQualityItemResource defines model for QualityProfileQualityItemResource.
 type QualityProfileQualityItemResource struct {
 	Allowed *bool                                `json:"allowed,omitempty"`
@@ -363,6 +415,13 @@ type QualitySource string
 type Ratings struct {
 	Value *float64 `json:"value,omitempty"`
 	Votes *int32   `json:"votes,omitempty"`
+}
+
+// Revision defines model for Revision.
+type Revision struct {
+	IsRepack *bool  `json:"isRepack,omitempty"`
+	Real     *int32 `json:"real,omitempty"`
+	Version  *int32 `json:"version,omitempty"`
 }
 
 // RootFolderResource defines model for RootFolderResource.
@@ -465,6 +524,19 @@ type SeriesStatusType string
 // SeriesTypes defines model for SeriesTypes.
 type SeriesTypes string
 
+// SortDirection defines model for SortDirection.
+type SortDirection string
+
+// GetApiV3BlocklistParams defines parameters for GetApiV3Blocklist.
+type GetApiV3BlocklistParams struct {
+	Page          *int32              `form:"page,omitempty" json:"page,omitempty"`
+	PageSize      *int32              `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	SortKey       *string             `form:"sortKey,omitempty" json:"sortKey,omitempty"`
+	SortDirection *SortDirection      `form:"sortDirection,omitempty" json:"sortDirection,omitempty"`
+	SeriesIds     *[]int32            `form:"seriesIds,omitempty" json:"seriesIds,omitempty"`
+	Protocols     *[]DownloadProtocol `form:"protocols,omitempty" json:"protocols,omitempty"`
+}
+
 // GetApiV3EpisodeParams defines parameters for GetApiV3Episode.
 type GetApiV3EpisodeParams struct {
 	SeriesId           *int32   `form:"seriesId,omitempty" json:"seriesId,omitempty"`
@@ -480,6 +552,12 @@ type GetApiV3EpisodeParams struct {
 type PutApiV3EpisodeMonitorParams struct {
 	IncludeImages *bool `form:"includeImages,omitempty" json:"includeImages,omitempty"`
 }
+
+// DeleteApiV3BlocklistBulkApplicationWildcardPlusJSONRequestBody defines body for DeleteApiV3BlocklistBulk for application/*+json ContentType.
+type DeleteApiV3BlocklistBulkApplicationWildcardPlusJSONRequestBody = BlocklistBulkResource
+
+// DeleteApiV3BlocklistBulkJSONRequestBody defines body for DeleteApiV3BlocklistBulk for application/json ContentType.
+type DeleteApiV3BlocklistBulkJSONRequestBody = BlocklistBulkResource
 
 // PutApiV3EpisodeMonitorJSONRequestBody defines body for PutApiV3EpisodeMonitor for application/json ContentType.
 type PutApiV3EpisodeMonitorJSONRequestBody = EpisodesMonitoredResource

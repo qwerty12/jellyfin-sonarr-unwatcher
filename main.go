@@ -3,11 +3,12 @@
 package main
 
 import (
-	"github.com/llxisdsh/pb"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/llxisdsh/pb"
 )
 
 const PATH_JELLYFIN = "/jellyfin"
@@ -18,11 +19,11 @@ func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := *j.Item.Id
-	if alreadyUnmonitoredCache.HasKey(id) {
+	if _, loaded := alreadyUnmonitoredCache.LoadOrStoreFn(*j.Item.Id, func() int64 {
+		return time.Now().Unix()
+	}); loaded {
 		return
 	}
-	alreadyUnmonitoredCache.Store(id, time.Now().Unix())
 
 	if !isInSonarrFolder(j.Item.Path) {
 		return
@@ -48,7 +49,7 @@ func main() {
 
 	go func() {
 		var tickerUnmonitored, tickerPrefetched <-chan time.Time
-		tickerUnmonitored = time.Tick(2 * time.Hour)
+		tickerUnmonitored = time.Tick(6 * time.Hour)
 		if alreadyPrefetchedCache != nil {
 			tickerPrefetched = time.Tick(2 * 24 * time.Hour)
 		}

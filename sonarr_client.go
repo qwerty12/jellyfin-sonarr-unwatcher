@@ -101,6 +101,10 @@ func (c *sonarrAPIClient) do(method string, endpoint string, queryParams url.Val
 	return nil
 }
 
+func (c *sonarrAPIClient) delete(endpoint string, queryParams url.Values, reqBody any) error {
+	return c.do(http.MethodDelete, endpoint, queryParams, reqBody, nil)
+}
+
 func (c *sonarrAPIClient) get(endpoint string, queryParams url.Values, respBody any) error {
 	return c.do(http.MethodGet, endpoint, queryParams, nil, respBody)
 }

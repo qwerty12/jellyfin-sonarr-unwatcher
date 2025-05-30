@@ -1,14 +1,16 @@
 package main
 
 import (
-	"github.com/llxisdsh/pb"
-	"jellyfin-sonarr-unwatcher/internal/jellygen"
-	"jellyfin-sonarr-unwatcher/internal/sonarrt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/llxisdsh/pb"
+
+	"jellyfin-sonarr-unwatcher/internal/jellygen"
+	"jellyfin-sonarr-unwatcher/internal/sonarrt"
 )
 
 type alreadySeenSeason struct {
@@ -140,6 +142,7 @@ func prefetcharr(sonarrSeries *sonarrt.SeriesResource, season *sonarrt.SeasonRes
 	}
 
 	if err == nil {
+		time.Sleep(time.Second)
 		err = sonarrClient.post("command", nil,
 			map[string]any{
 				"name":         "SeasonSearch",

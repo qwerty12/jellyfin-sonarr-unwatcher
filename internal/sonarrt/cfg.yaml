@@ -8,6 +8,7 @@ output-options:
   include-tags:
     - Episode
     - RootFolder
+    - Blocklist
   overlay:
     path: overlay.yaml
 output: types.gen.go
