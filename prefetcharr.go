@@ -24,11 +24,15 @@ var alreadyPrefetchedCache *pb.MapOf[alreadySeenSeason, int64]
 
 func enablePrefetcharr(mux *http.ServeMux) {
 	remainingEpisodes = atoi32(os.Getenv("REMAINING_EPISODES"))
-	if remainingEpisodes > 0 {
+	if isPrefetcharrEnabled() {
 		log.Print("Enabling /prefetcharr endpoint, remaining episodes threshold: ", remainingEpisodes)
 		alreadyPrefetchedCache = pb.NewMapOf[alreadySeenSeason, int64](pb.WithPresize(50), pb.WithShrinkEnabled())
 		mux.HandleFunc("POST /prefetcharr", prefetcharrHandler)
 	}
+}
+
+func isPrefetcharrEnabled() bool {
+	return remainingEpisodes > 0
 }
 
 func prefetcharrHandler(_ http.ResponseWriter, r *http.Request) {

@@ -115,7 +115,9 @@ func unmonitorEpisode(episode *jellygen.BaseItemDto, series *jellygen.BaseItemDt
 	}
 
 	log.Print(episodeString, " unmonitored!")
-	removeBlocklistedRlsesForEpisode(sonarrEpisode)
+	if (sonarrSeries != nil || !isPrefetcharrEnabled()) || (*sonarrEpisode.SeasonNumber != 1 && *sonarrEpisode.EpisodeNumber != 1) {
+		removeBlocklistedRlsesForEpisode(sonarrEpisode)
+	}
 }
 
 func removeBlocklistedRlsesForEpisode(sonarrEpisode *sonarrt.EpisodeResource) {
