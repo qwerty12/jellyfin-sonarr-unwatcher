@@ -9,6 +9,7 @@
     ":skipStatusChecks",
     ":updateNotScheduled"
   ],
+  "internalChecksFilter": "none",
   "labels": [
     "dependencies"
   ],
