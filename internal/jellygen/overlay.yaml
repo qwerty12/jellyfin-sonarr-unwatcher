@@ -5,16 +5,10 @@ info:
   version: 0.0.0
 actions:
   # https://github.com/speakeasy-api/jsonpath is useful here
-  - target: $..*[?(@.format == 'uuid' && @.type == 'string')].format
+  - target: $..*[?(@.format == 'uuid' && @.type == 'string')]
     description: Avoid github.com/oapi-codegen/runtime/types dependency
-    remove: true
-  - target: $["components"]["schemas"]["MediaStream"]["properties"]["VideoRangeType"]["allOf"]
-    description: '"Fix" errors in generated code:'
-    remove: true
-  - target: $["components"]["schemas"]["MediaStream"]["properties"]["VideoRangeType"]
-    description: Still have a `VideoRangeType` here while removing the `allOf` above
     update:
-      type: "string"
+      x-go-type: 'string'
   - target: $["components"]["schemas"]["TranscodingInfo"]["properties"]["TranscodeReasons"]["enum"]
     description: Prevent duplicate `TranscodeReasons` enum
     remove: true
@@ -23,18 +17,17 @@ actions:
     update: false
   - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ProviderIds"]
     update:
-      #x-omitempty: true
-      x-oapi-codegen-extra-tags:
-        json: ProviderIds,omitempty,omitzero
+      x-omitempty: true
+      x-omitzero: true
   - target: $..*[?(@.$ref == '#/components/schemas/RemoteSearchResult')]
-    description: RemoteSearchResult gets included for no reason; remove it
+    description: Remove unnecessarily always-included `RemoteSearchResult`
     remove: true
   - target: $["paths"]
     description: Add minimal path with single tag so oapi-codegen only includes this struct
     update:
       "/BaseItemDto": {"get": {"tags": ["BaseItemDto"], "responses": {"200": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/BaseItemDto"}}}}}}}
   - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["ServerId"]
-    description: remove unneeded fields out of BaseItemDto
+    description: Remove unneeded fields out of `BaseItemDto`
     remove: true
   - target: $["components"]["schemas"]["BaseItemDto"]["properties"]["Etag"]
     remove: true
