@@ -1,3 +1,5 @@
+//go:build !amd64 && !386
+
 package main
 
 import (
@@ -41,4 +43,20 @@ func pollInitialRootFolders() {
 			time.Sleep(time.Duration(math.MaxInt64))
 		}
 	}
+}
+
+func getRootFolders() *[]string {
+	var rootFolders []sonarrt.RootFolderResource
+	if err := sonarrClient.get("rootfolder", nil, &rootFolders); err == nil {
+		paths := make([]string, 0, len(rootFolders))
+		for _, folder := range rootFolders {
+			if folder.Path != nil && *folder.Path != "" {
+				paths = append(paths, *folder.Path)
+			}
+		}
+
+		return &paths
+	}
+
+	return nil
 }

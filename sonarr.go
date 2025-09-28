@@ -31,22 +31,6 @@ func sonarrInit() {
 	log.Print("Sonarr: ", sonarrHost)
 }
 
-func getRootFolders() *[]string {
-	var rootFolders []sonarrt.RootFolderResource
-	if err := sonarrClient.get("rootfolder", nil, &rootFolders); err == nil {
-		paths := make([]string, 0, len(rootFolders))
-		for _, folder := range rootFolders {
-			if folder.Path != nil && *folder.Path != "" {
-				paths = append(paths, *folder.Path)
-			}
-		}
-
-		return &paths
-	}
-
-	return nil
-}
-
 func unmonitorEpisode(episode *jellygen.BaseItemDto, series *jellygen.BaseItemDto, sonarrSeries *sonarrt.SeriesResource) {
 	if episode.ProviderIds == nil {
 		return
