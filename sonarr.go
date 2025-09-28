@@ -11,12 +11,9 @@ import (
 
 	"jellyfin-sonarr-unwatcher/internal/jellygen"
 	"jellyfin-sonarr-unwatcher/internal/sonarrt"
-
-	"github.com/llxisdsh/pb"
 )
 
 var sonarrClient *sonarrAPIClient
-var alreadyUnmonitoredCache *pb.MapOf[string, int64]
 
 func sonarrInit() {
 	sonarrHost := os.Getenv("SONARR_HOST")
@@ -31,7 +28,6 @@ func sonarrInit() {
 		log.Fatal("$SONARR_HOST invalid: ", err)
 	}
 
-	alreadyUnmonitoredCache = pb.NewMapOf[string, int64](pb.WithPresize(50), pb.WithShrinkEnabled())
 	log.Print("Sonarr: ", sonarrHost)
 }
 

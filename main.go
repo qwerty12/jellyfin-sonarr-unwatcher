@@ -13,6 +13,8 @@ import (
 
 const PATH_JELLYFIN = "/jellyfin"
 
+var alreadyUnmonitoredCache *pb.MapOf[string, int64]
+
 func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
 	var j JellyfinPayload
 	if !readJellyfinWebhookPayload(r, &j) || j.Item.Id == nil {
@@ -34,6 +36,7 @@ func jellyfinHandler(_ http.ResponseWriter, r *http.Request) {
 
 func main() {
 	sonarrInit()
+	alreadyUnmonitoredCache = pb.NewMapOf[string, int64](pb.WithPresize(50), pb.WithShrinkEnabled())
 	go pollInitialRootFolders()
 
 	jellyfinPort := os.Getenv("JELLYFIN_PORT")
@@ -49,7 +52,7 @@ func main() {
 
 	go func() {
 		var tickerUnmonitored, tickerPrefetched <-chan time.Time
-		tickerUnmonitored = time.Tick(6 * time.Hour)
+		tickerUnmonitored = time.Tick(12 * time.Hour)
 		if alreadyPrefetchedCache != nil {
 			tickerPrefetched = time.Tick(2 * 24 * time.Hour)
 		}
@@ -59,20 +62,20 @@ func main() {
 			case t := <-tickerUnmonitored:
 				nowStart := t.Unix()
 				//log.Printf("alreadyUnmonitoredCache %s", alreadyUnmonitoredCache.Stats().ToString())
-				alreadyUnmonitoredCache.RangeEntry(func(e *pb.EntryOf[string, int64]) bool {
-					if nowStart > e.Value {
-						alreadyUnmonitoredCache.Delete(e.Key)
+				alreadyUnmonitoredCache.RangeProcessEntry(func(loaded *pb.EntryOf[string, int64]) *pb.EntryOf[string, int64] {
+					if nowStart >= loaded.Value {
+						return nil
 					}
-					return true
+					return loaded
 				})
 			case t := <-tickerPrefetched:
 				nowStart := t.Unix()
 				//log.Printf("alreadyPrefetchedCache %s", alreadyPrefetchedCache.Stats().ToString())
-				alreadyPrefetchedCache.RangeEntry(func(e *pb.EntryOf[alreadySeenSeason, int64]) bool {
-					if nowStart > e.Value {
-						alreadyPrefetchedCache.Delete(e.Key)
+				alreadyPrefetchedCache.RangeProcessEntry(func(loaded *pb.EntryOf[alreadySeenSeason, int64]) *pb.EntryOf[alreadySeenSeason, int64] {
+					if nowStart >= loaded.Value {
+						return nil
 					}
-					return true
+					return loaded
 				})
 			}
 		}

@@ -7,6 +7,6 @@ set GOTELEMETRY=off
 set GOAMD64=v3
 set GOEXPERIMENT=jsonv2,greenteagc
 ::go generate ./... || exit /b %ERRORLEVEL%
-go build -trimpath -gcflags="all=-C -dwarf=false" -ldflags="-s -w -buildid=" -buildvcs=false -tags=mapof_opt_cachelinesize_64,mapof_opt_enablepadding,mapof_opt_atomiclevel_2
+go build -trimpath -gcflags="all=-C -dwarf=false" -ldflags="-s -w -buildid=" -buildvcs=false -tags=mapof_opt_cachelinesize_64,mapof_opt_enablepadding
 
 popd
