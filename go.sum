@@ -1,4 +1,4 @@
-github.com/llxisdsh/pb v1.5.1 h1:264zq2cfOG47GmOl8ouFcPe7AnjJ9AGr08e3Ubxl/A0=
-github.com/llxisdsh/pb v1.5.1/go.mod h1:mjGcFHzCTwOxAyOetRRWnIwYswca4i94HauDoA8RDl0=
+github.com/llxisdsh/pb v1.5.2 h1:FV7gJZGMXhQaiO63cEYmUQVuDdO2YiXuhyynOqEi6kY=
+github.com/llxisdsh/pb v1.5.2/go.mod h1:mjGcFHzCTwOxAyOetRRWnIwYswca4i94HauDoA8RDl0=
 golang.org/x/sys v0.37.0 h1:fdNQudmxPjkdUTPnLn5mdQv7Zwvbvpaxqs831goi9kQ=
 golang.org/x/sys v0.37.0/go.mod h1:OgkHotnGiDImocRcuBABYBEXf8A9a87e/uXjp9XT3ks=
