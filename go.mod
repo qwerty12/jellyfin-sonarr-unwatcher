@@ -1,6 +1,6 @@
 module jellyfin-sonarr-unwatcher
 
-go 1.25.7
+go 1.26.0
 
 require github.com/llxisdsh/pb v1.5.22
 
